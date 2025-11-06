@@ -8,7 +8,7 @@ Maintain momentum and clarity by following a repeatable, transparent workflow. E
 
 ### 1. Task Preparation
 - Read all relevant rules.
-- Confirm work is within the **student-only MVP** scope.
+- Confirm work is within the **MVP** scope.
 - Review `/Docs/Implementation.md` for current stage, available tasks, and dependencies.
 
 ### 2. Task Planning
@@ -40,12 +40,8 @@ Maintain momentum and clarity by following a repeatable, transparent workflow. E
   - **Blocked / Not working:** Hypothesis and next probe
   - **Next:** Commit/PR list with owners
 
-### 6. Issue & Sprint Management
-- Convert accepted plans into GitHub issues with labels:
-  - `area:frontend|backend|infra`, `type:feat|bug|chore`, `size:S|M|L`, `prio:P0|P1|P2`
-- 2 week = 1 sprint. Track progress in `/docs/Implementation.md` under Sprint Based Implementation Checklist.
 
-### 7. Task Completion
+### 6. Task Completion
 - Mark tasks complete only when:
   - All functionality is implemented and tested
   - All tests pass (unit, integration, e2e as applicable)
@@ -53,7 +49,7 @@ Maintain momentum and clarity by following a repeatable, transparent workflow. E
   - No errors or warnings remain
   - All subtasks are complete
 
-### 8. File Hygiene & Modularity
+### 7. File Hygiene & Modularity
 - Prefer small, focused files/components; split when large.
 - Keep rule files concise and modular for better AI edits.
 
