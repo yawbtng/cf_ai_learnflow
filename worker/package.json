@@ -1,10 +1,12 @@
 {
-  "name": "worker",
+  "name": "learnflow-worker",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Cloudflare Worker backend for LearnFlow",
+  "main": "src/index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "type-check": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
