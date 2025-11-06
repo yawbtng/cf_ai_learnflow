@@ -1,0 +1,23 @@
+name = "learnflow-worker"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# Cloudflare Account ID
+account_id = "10b05755a74ea30c8f776eabddc4969e"
+
+# Workers AI binding
+[ai]
+binding = "AI"
+
+# Environment variables (set these in Cloudflare Dashboard or via wrangler secret put)
+# For local development, these can be set in .env file
+[vars]
+# YOUTUBE_API_KEY = "your_youtube_api_key"
+# SPOTIFY_CLIENT_ID = "your_spotify_client_id"
+# SPOTIFY_CLIENT_SECRET = "your_spotify_client_secret"
+# NEWSDATA_API_KEY = "your_newsdata_api_key"
+
+# Routes (optional - for custom domain)
+# routes = [
+#   { pattern = "api.yourdomain.com/*", zone_name = "yourdomain.com" }
+# ]
