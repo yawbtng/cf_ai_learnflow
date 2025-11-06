@@ -45,6 +45,8 @@ next-env.d.ts
 .wrangler/
 wrangler.toml.*
 *.wasm
+worker/node_modules/
+worker/package-lock.json
 
 # local development
 .env.local
