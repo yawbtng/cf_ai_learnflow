@@ -2,22 +2,41 @@ import { fetchYouTubeVideos } from './api/youtube';
 import { fetchSpotifyPodcasts } from './api/spotify';
 import { fetchArticles } from './api/newsdata';
 import { normalizeResources, filterValidResources, deduplicateResources } from './utils/normalize';
-import { validateSearchInput } from './utils/validation';
+import { validateSearchInput, sanitizeTopic } from './utils/validation';
 import { rankResources } from './ai/ranking';
 import { SearchRequest, SearchResponse } from './types';
+
+/**
+ * Gets CORS headers based on request origin and allowed origins
+ */
+function getCorsHeaders(request: Request, env: Env): HeadersInit {
+  const origin = request.headers.get('Origin');
+  const allowedOrigins = env.ALLOWED_ORIGINS?.split(',') || ['*'];
+  
+  // In development, allow all origins. In production, use ALLOWED_ORIGINS env var
+  const corsOrigin = allowedOrigins.includes('*') || !origin
+    ? '*'
+    : allowedOrigins.includes(origin)
+    ? origin
+    : null;
+
+  return {
+    'Access-Control-Allow-Origin': corsOrigin || '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Max-Age': '86400', // 24 hours
+  };
+}
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+    const corsHeaders = getCorsHeaders(request, env);
     
     // Handle CORS preflight
     if (request.method === 'OPTIONS') {
       return new Response(null, {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
-        },
+        headers: corsHeaders,
       });
     }
 
@@ -26,7 +45,7 @@ export default {
       return new Response(JSON.stringify({ status: 'ok' }), {
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
+          ...corsHeaders,
         },
       });
     }
@@ -37,7 +56,7 @@ export default {
         const body = await request.json() as SearchRequest;
         const { topic, learningStyle } = body;
 
-        // Validate input
+        // Validate and sanitize input
         const validation = validateSearchInput(topic, learningStyle);
         if (!validation.valid) {
           return new Response(
@@ -46,20 +65,23 @@ export default {
               status: 400,
               headers: {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
+                ...corsHeaders,
               },
             }
           );
         }
+        
+        // Sanitize topic to prevent injection
+        const sanitizedTopic = sanitizeTopic(topic);
 
         // Normalize learning style to lowercase
         const normalizedLearningStyle = learningStyle.toLowerCase() as 'visual' | 'listener' | 'reader';
 
-        // Fetch from all three APIs in parallel
+        // Fetch from all three APIs in parallel (using sanitized topic)
         const [youtubeResults, spotifyResults, articleResults] = await Promise.allSettled([
-          fetchYouTubeVideos(topic, env.YOUTUBE_API_KEY || '', 10),
-          fetchSpotifyPodcasts(topic, env.SPOTIFY_CLIENT_ID || '', env.SPOTIFY_CLIENT_SECRET || '', 10),
-          fetchArticles(topic, env.NEWSDATA_API_KEY || '', 10),
+          fetchYouTubeVideos(sanitizedTopic, env.YOUTUBE_API_KEY || '', 10),
+          fetchSpotifyPodcasts(sanitizedTopic, env.SPOTIFY_CLIENT_ID || '', env.SPOTIFY_CLIENT_SECRET || '', 10),
+          fetchArticles(sanitizedTopic, env.NEWSDATA_API_KEY || '', 10),
         ]);
 
         // Extract successful results
@@ -102,7 +124,7 @@ export default {
             {
               headers: {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
+                ...corsHeaders,
               },
             }
           );
@@ -115,7 +137,7 @@ export default {
             rankedResources = await rankResources(
               uniqueResources,
               normalizedLearningStyle,
-              topic,
+              sanitizedTopic,
               env.AI
             );
           } else {
@@ -123,7 +145,7 @@ export default {
             // Add default reasons if AI is not available
             rankedResources = uniqueResources.map((resource) => ({
               ...resource,
-              reason: `This ${resource.source} resource may be useful for learning about ${topic}.`,
+              reason: `This ${resource.source} resource may be useful for learning about ${sanitizedTopic}.`,
             }));
           }
         } catch (error) {
@@ -131,7 +153,7 @@ export default {
           // Continue with unranked resources if AI fails
           rankedResources = uniqueResources.map((resource) => ({
             ...resource,
-            reason: `This ${resource.source} resource may be useful for learning about ${topic}.`,
+            reason: `This ${resource.source} resource may be useful for learning about ${sanitizedTopic}.`,
           }));
         }
 
@@ -144,7 +166,7 @@ export default {
         return new Response(JSON.stringify(response), {
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
+            ...corsHeaders,
           },
         });
       } catch (error) {
@@ -158,7 +180,7 @@ export default {
             status: 500,
             headers: {
               'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*',
+              ...corsHeaders,
             },
           }
         );
@@ -185,4 +207,5 @@ interface Env {
   SPOTIFY_CLIENT_ID?: string;
   SPOTIFY_CLIENT_SECRET?: string;
   NEWSDATA_API_KEY?: string;
+  ALLOWED_ORIGINS?: string; // Comma-separated list of allowed CORS origins (e.g., "https://example.com,https://app.example.com")
 }

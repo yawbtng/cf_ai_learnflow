@@ -5,6 +5,9 @@ compatibility_date = "2024-01-01"
 # Cloudflare Account ID
 account_id = "10b05755a74ea30c8f776eabddc4969e"
 
+# Compatibility flags for Node.js APIs (if needed in future)
+compatibility_flags = []
+
 # Workers AI binding
 [ai]
 binding = "AI"
