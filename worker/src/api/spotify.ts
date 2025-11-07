@@ -128,6 +128,7 @@ export async function fetchSpotifyPodcasts(
   try {
     // Get access token
     const accessToken = await getSpotifyAccessToken(clientId, clientSecret);
+    console.log('Spotify: Got access token successfully');
 
     // Search for podcasts (shows) and episodes
     const searchParams = new URLSearchParams({
@@ -138,6 +139,7 @@ export async function fetchSpotifyPodcasts(
     });
 
     const url = `https://api.spotify.com/v1/search?${searchParams.toString()}`;
+    console.log('Spotify: Searching with query:', query);
     
     const response = await fetch(url, {
       method: 'GET',
@@ -146,6 +148,8 @@ export async function fetchSpotifyPodcasts(
         'Accept': 'application/json',
       },
     });
+    
+    console.log('Spotify: API response status:', response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -180,14 +184,18 @@ export async function fetchSpotifyPodcasts(
     const data: SpotifySearchResponse = await response.json();
     
     // Debug logging to understand response structure
-    console.log('Spotify API response:', JSON.stringify({
+    console.log('Spotify API response structure:', JSON.stringify({
       hasShows: !!data.shows,
       showsCount: data.shows?.items?.length || 0,
       hasEpisodes: !!data.episodes,
       episodesCount: data.episodes?.items?.length || 0,
+      fullResponseKeys: Object.keys(data),
     }));
     
-    return parseSpotifyResponse(data);
+    const parsedResources = parseSpotifyResponse(data);
+    console.log('Spotify: Parsed resources count:', parsedResources.length);
+    
+    return parsedResources;
   } catch (error) {
     console.error('Error fetching Spotify podcasts:', error);
     // Return empty array instead of throwing to allow other APIs to continue
