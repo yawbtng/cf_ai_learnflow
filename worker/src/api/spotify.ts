@@ -178,6 +178,15 @@ export async function fetchSpotifyPodcasts(
     }
 
     const data: SpotifySearchResponse = await response.json();
+    
+    // Debug logging to understand response structure
+    console.log('Spotify API response:', JSON.stringify({
+      hasShows: !!data.shows,
+      showsCount: data.shows?.items?.length || 0,
+      hasEpisodes: !!data.episodes,
+      episodesCount: data.episodes?.items?.length || 0,
+    }));
+    
     return parseSpotifyResponse(data);
   } catch (error) {
     console.error('Error fetching Spotify podcasts:', error);
@@ -193,7 +202,7 @@ function parseSpotifyResponse(data: SpotifySearchResponse): Resource[] {
   const resources: Resource[] = [];
 
   // Process shows (podcast series)
-  if (data.shows?.items) {
+  if (data.shows?.items && data.shows.items.length > 0) {
     for (const show of data.shows.items) {
       const thumbnail = show.images && show.images.length > 0 
         ? show.images[0].url 
@@ -212,7 +221,7 @@ function parseSpotifyResponse(data: SpotifySearchResponse): Resource[] {
   }
 
   // Process episodes (individual podcast episodes)
-  if (data.episodes?.items) {
+  if (data.episodes?.items && data.episodes.items.length > 0) {
     for (const episode of data.episodes.items) {
       const thumbnail = episode.images && episode.images.length > 0 
         ? episode.images[0].url 
