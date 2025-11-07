@@ -217,43 +217,62 @@ export async function fetchSpotifyPodcasts(
 function parseSpotifyResponse(data: SpotifySearchResponse): Resource[] {
   const resources: Resource[] = [];
 
-  // Process shows (podcast series)
-  if (data.shows?.items && data.shows.items.length > 0) {
-    for (const show of data.shows.items) {
-      const thumbnail = show.images && show.images.length > 0 
-        ? show.images[0].url 
-        : '';
+  try {
+    // Process shows (podcast series)
+    if (data.shows?.items && Array.isArray(data.shows.items) && data.shows.items.length > 0) {
+      console.log(`Spotify: Processing ${data.shows.items.length} shows`);
+      for (const show of data.shows.items) {
+        try {
+          const thumbnail = show.images && Array.isArray(show.images) && show.images.length > 0 
+            ? show.images[0].url 
+            : '';
 
-      resources.push({
-        id: `spotify_show_${show.id}`,
-        title: show.name,
-        source: 'spotify' as const,
-        url: show.external_urls.spotify,
-        thumbnail,
-        summary: show.description || '',
-        publishedAt: undefined, // Shows don't have a single publish date
-      });
+          resources.push({
+            id: `spotify_show_${show.id}`,
+            title: show.name || 'Untitled Podcast',
+            source: 'spotify' as const,
+            url: show.external_urls?.spotify || '#',
+            thumbnail,
+            summary: show.description || '',
+            publishedAt: undefined, // Shows don't have a single publish date
+          });
+        } catch (err) {
+          console.error('Error processing Spotify show:', err, show);
+        }
+      }
+    } else {
+      console.log('Spotify: No shows found or shows.items is not an array');
     }
+
+    // Process episodes (individual podcast episodes)
+    if (data.episodes?.items && Array.isArray(data.episodes.items) && data.episodes.items.length > 0) {
+      console.log(`Spotify: Processing ${data.episodes.items.length} episodes`);
+      for (const episode of data.episodes.items) {
+        try {
+          const thumbnail = episode.images && Array.isArray(episode.images) && episode.images.length > 0 
+            ? episode.images[0].url 
+            : '';
+
+          resources.push({
+            id: `spotify_episode_${episode.id}`,
+            title: `${episode.show?.name || 'Unknown'}: ${episode.name || 'Untitled Episode'}`,
+            source: 'spotify' as const,
+            url: episode.external_urls?.spotify || '#',
+            thumbnail,
+            summary: episode.description || '',
+            publishedAt: episode.release_date,
+          });
+        } catch (err) {
+          console.error('Error processing Spotify episode:', err, episode);
+        }
+      }
+    } else {
+      console.log('Spotify: No episodes found or episodes.items is not an array');
+    }
+  } catch (error) {
+    console.error('Error parsing Spotify response:', error);
   }
 
-  // Process episodes (individual podcast episodes)
-  if (data.episodes?.items && data.episodes.items.length > 0) {
-    for (const episode of data.episodes.items) {
-      const thumbnail = episode.images && episode.images.length > 0 
-        ? episode.images[0].url 
-        : '';
-
-      resources.push({
-        id: `spotify_episode_${episode.id}`,
-        title: `${episode.show.name}: ${episode.name}`,
-        source: 'spotify' as const,
-        url: episode.external_urls.spotify,
-        thumbnail,
-        summary: episode.description || '',
-        publishedAt: episode.release_date,
-      });
-    }
-  }
-
+  console.log(`Spotify: Total resources parsed: ${resources.length}`);
   return resources;
 }
