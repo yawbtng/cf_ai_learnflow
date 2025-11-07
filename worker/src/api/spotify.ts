@@ -181,18 +181,26 @@ export async function fetchSpotifyPodcasts(
       }
     }
 
-    const data: SpotifySearchResponse = await response.json();
+    const data: any = await response.json();
     
     // Debug logging to understand response structure
     console.log('Spotify API response structure:', JSON.stringify({
+      topLevelKeys: Object.keys(data),
       hasShows: !!data.shows,
       showsCount: data.shows?.items?.length || 0,
       hasEpisodes: !!data.episodes,
       episodesCount: data.episodes?.items?.length || 0,
-      fullResponseKeys: Object.keys(data),
+      // Log first 200 chars of full response for debugging
+      responseSample: JSON.stringify(data).substring(0, 200),
     }));
     
-    const parsedResources = parseSpotifyResponse(data);
+    // Handle potential different response structures
+    const searchResponse: SpotifySearchResponse = {
+      shows: data.shows || { items: [] },
+      episodes: data.episodes || { items: [] },
+    };
+    
+    const parsedResources = parseSpotifyResponse(searchResponse);
     console.log('Spotify: Parsed resources count:', parsedResources.length);
     
     return parsedResources;
