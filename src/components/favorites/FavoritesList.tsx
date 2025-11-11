@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
 import { ResourceList } from '@/components/resources/ResourceList';
 import { ChevronDown, ChevronUp, Heart } from 'lucide-react';
 import type { Resource } from '@/lib/types';
@@ -34,13 +35,11 @@ export function FavoritesList({ favorites, onToggleFavorite }: FavoritesListProp
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="mt-4">
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <Heart className="text-muted-foreground mb-4 size-12" />
-            <p className="text-muted-foreground text-lg">No favorites yet</p>
-            <p className="text-muted-foreground mt-2 text-sm">
-              Start exploring and save your favorite resources by clicking the heart icon.
-            </p>
-          </div>
+          <EmptyState
+            icon={Heart}
+            title="No favorites yet"
+            description="Start exploring and save your favorite resources by clicking the heart icon on any resource card."
+          />
         </CollapsibleContent>
       </Collapsible>
     );

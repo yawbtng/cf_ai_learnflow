@@ -3,6 +3,8 @@
 import { ResourceCard } from './ResourceCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
+import { Search } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { Resource } from '@/lib/types';
 
@@ -48,12 +50,11 @@ export function ResourceList({
 
   if (resources.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <p className="text-muted-foreground text-lg">No resources found</p>
-        <p className="text-muted-foreground mt-2 text-sm">
-          Try searching for a different topic or adjusting your learning style preference.
-        </p>
-      </div>
+      <EmptyState
+        icon={Search}
+        title="No resources found"
+        description="Try searching for a different topic or adjusting your learning style preference. You can search for any topic you'd like to learn about!"
+      />
     );
   }
 
