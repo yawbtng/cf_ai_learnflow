@@ -35,11 +35,13 @@ function SearchInputInner({
   const prevInputValueRef = useRef(inputValue);
   const isInternalUpdateRef = useRef(false);
   const onChangeRef = useRef(onChange);
+  const setInputRef = useRef(setInput);
 
-  // Keep onChange ref up to date
+  // Keep refs up to date
   useEffect(() => {
     onChangeRef.current = onChange;
-  }, [onChange]);
+    setInputRef.current = setInput;
+  }, [onChange, setInput]);
 
   // Sync external value prop with internal state (only when value changes externally)
   useEffect(() => {
@@ -47,21 +49,31 @@ function SearchInputInner({
     if (isInternalUpdateRef.current) {
       isInternalUpdateRef.current = false;
       prevValueRef.current = value;
+      prevInputValueRef.current = value;
       return;
     }
 
     // Only sync if value changed externally and differs from current input
     if (value !== prevValueRef.current && value !== inputValue) {
-      setInput(value);
+      setInputRef.current(value);
       prevValueRef.current = value;
       prevInputValueRef.current = value;
+    } else {
+      // Update ref to track current value even if no sync needed
+      prevValueRef.current = value;
     }
-  }, [value, inputValue, setInput]);
+  }, [value, inputValue]);
 
   // Sync internal state changes with external onChange (only when inputValue changes internally)
   useEffect(() => {
-    // Skip if this is an external update or if values match
-    if (inputValue === prevInputValueRef.current || inputValue === value) {
+    // Skip if values haven't changed or already match
+    if (inputValue === prevInputValueRef.current) {
+      return;
+    }
+
+    // Skip if this matches the external value (means it was set externally)
+    if (inputValue === value) {
+      prevInputValueRef.current = inputValue;
       return;
     }
 
