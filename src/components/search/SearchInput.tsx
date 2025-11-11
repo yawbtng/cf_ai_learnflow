@@ -9,7 +9,7 @@ import {
   usePromptInputController,
 } from '@/components/ai-elements/prompt-input';
 import { Search } from 'lucide-react';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 export interface SearchInputProps {
   value: string;
@@ -29,17 +29,21 @@ function SearchInputInner({
   const controller = usePromptInputController();
   const inputValue = controller.textInput.value;
 
-  // Sync external value prop with internal state
+  // Sync external value prop with internal state (only when value changes externally)
+  const prevValueRef = React.useRef(value);
   useEffect(() => {
-    if (value !== undefined && value !== inputValue) {
+    if (value !== undefined && value !== prevValueRef.current && value !== inputValue) {
       controller.textInput.setInput(value);
+      prevValueRef.current = value;
     }
   }, [value, inputValue, controller]);
 
-  // Sync internal state changes with external onChange
+  // Sync internal state changes with external onChange (only when inputValue changes internally)
+  const prevInputValueRef = React.useRef(inputValue);
   useEffect(() => {
-    if (inputValue !== undefined && inputValue !== value) {
+    if (inputValue !== undefined && inputValue !== prevInputValueRef.current && inputValue !== value) {
       onChange(inputValue);
+      prevInputValueRef.current = inputValue;
     }
   }, [inputValue, onChange, value]);
 
