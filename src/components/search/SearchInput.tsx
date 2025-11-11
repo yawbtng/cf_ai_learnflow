@@ -34,12 +34,19 @@ function SearchInputInner({
   const prevValueRef = useRef(value);
   const prevInputValueRef = useRef(inputValue);
   const isInternalUpdateRef = useRef(false);
+  const onChangeRef = useRef(onChange);
+
+  // Keep onChange ref up to date
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   // Sync external value prop with internal state (only when value changes externally)
   useEffect(() => {
     // Skip if this is an internal update
     if (isInternalUpdateRef.current) {
       isInternalUpdateRef.current = false;
+      prevValueRef.current = value;
       return;
     }
 
@@ -48,9 +55,6 @@ function SearchInputInner({
       setInput(value);
       prevValueRef.current = value;
       prevInputValueRef.current = value;
-    } else if (value === prevValueRef.current) {
-      // Update ref even if value hasn't changed (to track it)
-      prevValueRef.current = value;
     }
   }, [value, inputValue, setInput]);
 
@@ -63,9 +67,9 @@ function SearchInputInner({
 
     // Mark as internal update to prevent feedback loop
     isInternalUpdateRef.current = true;
-    onChange(inputValue);
+    onChangeRef.current(inputValue);
     prevInputValueRef.current = inputValue;
-  }, [inputValue, onChange, value]);
+  }, [inputValue, value]);
 
   const handleSubmit = async (
     message: { text: string; files?: unknown[] },
