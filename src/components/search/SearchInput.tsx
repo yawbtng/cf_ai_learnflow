@@ -9,7 +9,7 @@ import {
   usePromptInputController,
 } from '@/components/ai-elements/prompt-input';
 import { Search } from 'lucide-react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export interface SearchInputProps {
   value: string;
@@ -28,23 +28,43 @@ function SearchInputInner({
 }: SearchInputProps) {
   const controller = usePromptInputController();
   const inputValue = controller.textInput.value;
+  const setInput = controller.textInput.setInput;
+
+  // Track previous values to detect external vs internal changes
+  const prevValueRef = useRef(value);
+  const prevInputValueRef = useRef(inputValue);
+  const isInternalUpdateRef = useRef(false);
 
   // Sync external value prop with internal state (only when value changes externally)
-  const prevValueRef = React.useRef(value);
   useEffect(() => {
-    if (value !== undefined && value !== prevValueRef.current && value !== inputValue) {
-      controller.textInput.setInput(value);
+    // Skip if this is an internal update
+    if (isInternalUpdateRef.current) {
+      isInternalUpdateRef.current = false;
+      return;
+    }
+
+    // Only sync if value changed externally and differs from current input
+    if (value !== prevValueRef.current && value !== inputValue) {
+      setInput(value);
+      prevValueRef.current = value;
+      prevInputValueRef.current = value;
+    } else if (value === prevValueRef.current) {
+      // Update ref even if value hasn't changed (to track it)
       prevValueRef.current = value;
     }
-  }, [value, inputValue, controller]);
+  }, [value, inputValue, setInput]);
 
   // Sync internal state changes with external onChange (only when inputValue changes internally)
-  const prevInputValueRef = React.useRef(inputValue);
   useEffect(() => {
-    if (inputValue !== undefined && inputValue !== prevInputValueRef.current && inputValue !== value) {
-      onChange(inputValue);
-      prevInputValueRef.current = inputValue;
+    // Skip if this is an external update or if values match
+    if (inputValue === prevInputValueRef.current || inputValue === value) {
+      return;
     }
+
+    // Mark as internal update to prevent feedback loop
+    isInternalUpdateRef.current = true;
+    onChange(inputValue);
+    prevInputValueRef.current = inputValue;
   }, [inputValue, onChange, value]);
 
   const handleSubmit = async (
