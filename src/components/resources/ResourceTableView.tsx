@@ -73,6 +73,7 @@ export function ResourceTableView({
                 fill
                 className="object-cover"
                 sizes="64px"
+                loading="lazy"
               />
             </div>
           ) : (

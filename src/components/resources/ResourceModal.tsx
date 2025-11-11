@@ -143,6 +143,7 @@ export function ResourceModal({
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, 768px"
+                      loading="lazy"
                     />
                   </motion.div>
                 ) : null}
