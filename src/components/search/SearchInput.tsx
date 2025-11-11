@@ -43,10 +43,18 @@ function SearchInputInner({
     }
   }, [inputValue, onChange, value]);
 
-  const handleSubmit = async () => {
-    const trimmedValue = inputValue.trim();
+  const handleSubmit = async (
+    message: { text: string; files?: unknown[] },
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+    const trimmedValue = message.text.trim();
     if (!trimmedValue || disabled) {
       return;
+    }
+    // Update internal state to match submitted text
+    if (trimmedValue !== inputValue) {
+      controller.textInput.setInput(trimmedValue);
+      onChange(trimmedValue);
     }
     onSubmit();
   };
