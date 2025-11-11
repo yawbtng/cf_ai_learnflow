@@ -3,6 +3,7 @@
 import { ResourceCard } from './ResourceCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
+import { motion } from 'motion/react';
 import type { Resource } from '@/lib/types';
 
 export interface ResourceListProps {
@@ -57,17 +58,42 @@ export function ResourceList({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {resources.map((resource) => (
-        <ResourceCard
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={{
+        visible: {
+          transition: {
+            staggerChildren: 0.1,
+          },
+        },
+      }}
+      className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+    >
+      {resources.map((resource, index) => (
+        <motion.div
           key={resource.id}
-          resource={resource}
-          isFavorite={favorites.some((fav) => fav.id === resource.id)}
-          onToggleFavorite={onToggleFavorite}
-          onClick={onResourceClick}
-        />
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: {
+              opacity: 1,
+              y: 0,
+              transition: {
+                delay: index * 0.05,
+                duration: 0.3,
+              },
+            },
+          }}
+        >
+          <ResourceCard
+            resource={resource}
+            isFavorite={favorites.some((fav) => fav.id === resource.id)}
+            onToggleFavorite={onToggleFavorite}
+            onClick={onResourceClick}
+          />
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }
 

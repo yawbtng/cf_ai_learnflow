@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Heart } from 'lucide-react';
+import { motion } from 'motion/react';
 import type { Resource } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -38,10 +39,16 @@ export function ResourceCard({
   const sourceLabel = sourceLabels[resource.source];
 
   return (
-    <Card
-      className="group flex h-full flex-col overflow-hidden transition-all hover:scale-[1.02] hover:shadow-md cursor-pointer"
-      onClick={() => onClick?.(resource)}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.02, y: -4 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 25 }}
     >
+      <Card
+        className="group flex h-full flex-col overflow-hidden cursor-pointer transition-shadow hover:shadow-lg"
+        onClick={() => onClick?.(resource)}
+      >
       {resource.thumbnail && (
         <div className="relative h-48 w-full overflow-hidden">
           <Image
@@ -101,6 +108,7 @@ export function ResourceCard({
         </Link>
       </CardContent>
     </Card>
+    </motion.div>
   );
 }
 
