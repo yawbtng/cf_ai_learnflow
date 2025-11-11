@@ -1,14 +1,10 @@
 'use client';
 
-import {
-  PromptInput,
-  PromptInputBody,
-  PromptInputTextarea,
-  PromptInputSubmit,
-  PromptInputProvider,
-} from '@/components/ai-elements/prompt-input';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
-import { useState } from 'react';
+import { useState, KeyboardEvent } from 'react';
+import { cn } from '@/lib/utils';
 
 export interface SearchInputProps {
   value: string;
@@ -25,38 +21,39 @@ export function SearchInput({
   placeholder = 'What would you like to learn about?',
   disabled = false,
 }: SearchInputProps) {
-  const [inputValue, setInputValue] = useState(value);
-
-  const handleSubmit = async () => {
-    const trimmedValue = inputValue.trim();
-    if (!trimmedValue || disabled) {
-      return;
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey && !disabled && value.trim()) {
+      e.preventDefault();
+      onSubmit();
     }
-    onChange(trimmedValue);
-    onSubmit();
   };
 
   return (
-    <PromptInputProvider initialInput={value}>
-      <PromptInput onSubmit={handleSubmit}>
-        <PromptInputBody>
-          <PromptInputTextarea
-            value={inputValue}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              setInputValue(newValue);
-              onChange(newValue);
-            }}
-            placeholder={placeholder}
-            disabled={disabled}
-            className="min-h-12 text-base"
-          />
-          <PromptInputSubmit disabled={disabled || !inputValue.trim()}>
-            <Search className="size-4" />
-          </PromptInputSubmit>
-        </PromptInputBody>
-      </PromptInput>
-    </PromptInputProvider>
+    <div className="relative flex items-center gap-2">
+      <Input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        disabled={disabled}
+        className={cn(
+          'h-12 text-base pr-12',
+          'focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2'
+        )}
+        aria-label="Search for learning resources"
+      />
+      <Button
+        type="button"
+        onClick={onSubmit}
+        disabled={disabled || !value.trim()}
+        className="absolute right-2 h-8 w-8 shrink-0"
+        size="icon-sm"
+        aria-label="Submit search"
+      >
+        <Search className="size-4" />
+      </Button>
+    </div>
   );
 }
 
