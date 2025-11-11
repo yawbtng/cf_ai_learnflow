@@ -159,7 +159,7 @@
 - [ ] Optimize images and thumbnails with Next.js Image component
 - [ ] Implement error boundaries for better error handling
 - [ ] Add light/dark mode toggle
-- [ ] Add table view for resources
+- [ ] Add table view and card view (via tabs)
 - [ ] Open modal pop-up with details when a resource/card is clicked (modal should show LLM summary of resource, rating of relevance, key topics, thumbnail/playable iframe for YT)
 - [ ] Create separate favorites page
 
