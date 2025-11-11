@@ -20,7 +20,7 @@ export function ViewToggle({ view, onViewChange }: ViewToggleProps) {
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: reducedMotion ? 0 : 0.2 }}
-      className="inline-flex items-center gap-1 rounded-lg border bg-background p-1"
+      className="relative inline-flex items-center gap-1 rounded-lg border bg-background p-1"
     >
       <motion.div
         className="absolute rounded-md bg-primary"
