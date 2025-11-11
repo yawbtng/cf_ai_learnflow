@@ -9,6 +9,8 @@ import { Heart } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { Resource } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { sourceColors, sourceLabels } from '@/lib/constants';
+import { useReducedMotion } from 'motion/react';
 
 export interface ResourceCardProps {
   resource: Resource;
@@ -17,24 +19,13 @@ export interface ResourceCardProps {
   onClick?: (resource: Resource) => void;
 }
 
-const sourceColors: Record<Resource['source'], string> = {
-  youtube: 'bg-red-500 text-white',
-  spotify: 'bg-green-500 text-white',
-  article: 'bg-blue-500 text-white',
-};
-
-const sourceLabels: Record<Resource['source'], string> = {
-  youtube: 'YouTube',
-  spotify: 'Spotify',
-  article: 'Article',
-};
-
 export function ResourceCard({
   resource,
   isFavorite,
   onToggleFavorite,
   onClick,
 }: ResourceCardProps) {
+  const reducedMotion = useReducedMotion();
   const sourceColor = sourceColors[resource.source];
   const sourceLabel = sourceLabels[resource.source];
 
@@ -42,8 +33,13 @@ export function ResourceCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ scale: 1.02, y: -4 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+      whileHover={reducedMotion ? {} : { scale: 1.02, y: -4 }}
+      transition={{ 
+        type: reducedMotion ? 'tween' : 'spring', 
+        stiffness: 300, 
+        damping: 25,
+        duration: reducedMotion ? 0 : undefined
+      }}
     >
       <Card
         className="group flex h-full flex-col overflow-hidden cursor-pointer transition-shadow hover:shadow-lg"

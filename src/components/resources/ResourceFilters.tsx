@@ -3,7 +3,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import type { SortField, SortOrder } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
@@ -27,6 +27,8 @@ export function ResourceFilters({
   onSortFieldChange,
   onSortOrderChange,
 }: ResourceFiltersProps) {
+  const reducedMotion = useReducedMotion();
+  
   const toggleSortOrder = () => {
     onSortOrderChange(sortOrder === 'asc' ? 'desc' : 'asc');
   };
@@ -35,7 +37,7 @@ export function ResourceFilters({
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: reducedMotion ? 0 : 0.3 }}
       className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
     >
       <div className="flex items-center gap-2">
@@ -55,9 +57,14 @@ export function ResourceFilters({
       </div>
 
       <motion.div
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+        whileHover={reducedMotion ? {} : { scale: 1.05 }}
+        whileTap={reducedMotion ? {} : { scale: 0.95 }}
+        transition={{ 
+          type: reducedMotion ? 'tween' : 'spring', 
+          stiffness: 400, 
+          damping: 17,
+          duration: reducedMotion ? 0 : undefined
+        }}
       >
         <Button
           variant="outline"

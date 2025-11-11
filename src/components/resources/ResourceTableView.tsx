@@ -5,11 +5,9 @@ import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  getSortedRowModel,
-  SortingState,
   useReactTable,
 } from '@tanstack/react-table';
-import { ArrowUpDown, ExternalLink, Heart } from 'lucide-react';
+import { ExternalLink, Heart } from 'lucide-react';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -26,6 +24,8 @@ import {
 } from '@/components/ui/table';
 import type { Resource } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { sourceColors, sourceLabels } from '@/lib/constants';
+import { useReducedMotion } from 'motion/react';
 
 export interface ResourceTableViewProps {
   resources: Resource[];
@@ -34,25 +34,14 @@ export interface ResourceTableViewProps {
   onRowClick?: (resource: Resource) => void;
 }
 
-const sourceColors: Record<Resource['source'], string> = {
-  youtube: 'bg-red-500 text-white',
-  spotify: 'bg-green-500 text-white',
-  article: 'bg-blue-500 text-white',
-};
-
-const sourceLabels: Record<Resource['source'], string> = {
-  youtube: 'YouTube',
-  spotify: 'Spotify',
-  article: 'Article',
-};
-
 export function ResourceTableView({
   resources,
   favorites,
   onToggleFavorite,
   onRowClick,
 }: ResourceTableViewProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const reducedMotion = useReducedMotion();
+  // Table sorting is disabled - resources are sorted by ResourceFilters
 
   const isFavorite = (resource: Resource) => {
     return favorites.some((fav) => fav.id === resource.id);
@@ -84,18 +73,10 @@ export function ResourceTableView({
       },
       {
         accessorKey: 'title',
-        header: ({ column }) => {
-          return (
-            <Button
-              variant="ghost"
-              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-              className="h-8 px-2"
-            >
-              Title
-              <ArrowUpDown className="ml-2 size-4" />
-            </Button>
-          );
+        header: () => {
+          return <span className="text-sm font-medium">Title</span>;
         },
+        enableSorting: false,
         cell: ({ row }) => {
           const resource = row.original;
           return (
@@ -112,18 +93,10 @@ export function ResourceTableView({
       },
       {
         accessorKey: 'source',
-        header: ({ column }) => {
-          return (
-            <Button
-              variant="ghost"
-              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-              className="h-8 px-2"
-            >
-              Source
-              <ArrowUpDown className="ml-2 size-4" />
-            </Button>
-          );
+        header: () => {
+          return <span className="text-sm font-medium">Source</span>;
         },
+        enableSorting: false,
         cell: ({ row }) => {
           const resource = row.original;
           const sourceColor = sourceColors[resource.source];
@@ -135,18 +108,10 @@ export function ResourceTableView({
       },
       {
         accessorKey: 'publishedAt',
-        header: ({ column }) => {
-          return (
-            <Button
-              variant="ghost"
-              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-              className="h-8 px-2"
-            >
-              Date
-              <ArrowUpDown className="ml-2 size-4" />
-            </Button>
-          );
+        header: () => {
+          return <span className="text-sm font-medium">Date</span>;
         },
+        enableSorting: false,
         cell: ({ row }) => {
           const resource = row.original;
           return resource.publishedAt ? (
@@ -197,12 +162,8 @@ export function ResourceTableView({
   const table = useReactTable({
     data: resources,
     columns,
-    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    state: {
-      sorting,
-    },
+    // Disable table sorting - resources are already sorted by ResourceFilters
   });
 
   if (resources.length === 0) {
@@ -213,7 +174,7 @@ export function ResourceTableView({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: reducedMotion ? 0 : 0.3 }}
       className="w-full overflow-hidden rounded-md border"
     >
       <Table>

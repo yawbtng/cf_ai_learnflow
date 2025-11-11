@@ -13,6 +13,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { Button } from '@/components/ui/button';
 import { useFavorites } from '@/hooks/useFavorites';
 import type { Resource } from '@/lib/types';
+import { getStoredViewMode, setStoredValue } from '@/lib/localStorage';
 
 export default function FavoritesPage() {
   const { favorites, toggleFavorite } = useFavorites();
@@ -23,8 +24,8 @@ export default function FavoritesPage() {
   // Load view preference from localStorage
   useEffect(() => {
     setMounted(true);
-    const savedView = localStorage.getItem('viewMode') as ViewMode | null;
-    if (savedView === 'card' || savedView === 'table') {
+    const savedView = getStoredViewMode();
+    if (savedView) {
       setViewMode(savedView);
     }
   }, []);
@@ -32,7 +33,7 @@ export default function FavoritesPage() {
   // Save view preference to localStorage
   const handleViewChange = (view: ViewMode) => {
     setViewMode(view);
-    localStorage.setItem('viewMode', view);
+    setStoredValue('viewMode', view);
   };
 
   if (!mounted) {

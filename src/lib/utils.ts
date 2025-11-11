@@ -33,11 +33,20 @@ export function sortResources(resources: Resource[], config: SortConfig): Resour
         comparison = dateA - dateB;
         break;
       case 'relevance':
-        // For relevance, we'll use a simple heuristic based on reason length
-        // (shorter reasons might indicate higher relevance)
-        const reasonA = a.reason?.length || 0;
-        const reasonB = b.reason?.length || 0;
-        comparison = reasonA - reasonB;
+        // Improved relevance heuristic:
+        // 1. Resources with both reason and summary are more relevant
+        // 2. Resources with reason are more relevant than those without
+        // 3. Among resources with reason, shorter reasons may indicate higher confidence
+        const aHasReason = !!a.reason;
+        const bHasReason = !!b.reason;
+        const aHasSummary = !!a.summary;
+        const bHasSummary = !!b.summary;
+        
+        // Score: reason (2 points) + summary (1 point) - reason length penalty (normalized)
+        const aScore = (aHasReason ? 2 : 0) + (aHasSummary ? 1 : 0) - (a.reason?.length || 0) / 100;
+        const bScore = (bHasReason ? 2 : 0) + (bHasSummary ? 1 : 0) - (b.reason?.length || 0) / 100;
+        
+        comparison = aScore - bScore;
         break;
       default:
         return 0;

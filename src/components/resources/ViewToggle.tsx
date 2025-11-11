@@ -2,7 +2,7 @@
 
 import { LayoutGrid, Table as TableIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
 
 export type ViewMode = 'card' | 'table';
@@ -13,18 +13,25 @@ export interface ViewToggleProps {
 }
 
 export function ViewToggle({ view, onViewChange }: ViewToggleProps) {
+  const reducedMotion = useReducedMotion();
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: reducedMotion ? 0 : 0.2 }}
       className="inline-flex items-center gap-1 rounded-lg border bg-background p-1"
     >
       <motion.div
         className="absolute rounded-md bg-primary"
         layoutId="viewToggle"
         initial={false}
-        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+        transition={{ 
+          type: reducedMotion ? 'tween' : 'spring', 
+          stiffness: 500, 
+          damping: 30,
+          duration: reducedMotion ? 0 : undefined
+        }}
         style={{
           width: 'calc(50% - 4px)',
           height: 'calc(100% - 8px)',

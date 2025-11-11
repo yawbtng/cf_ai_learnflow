@@ -5,7 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Search } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import type { Resource } from '@/lib/types';
 
 export interface ResourceListProps {
@@ -38,6 +38,8 @@ export function ResourceList({
   onResourceClick,
   loading = false,
 }: ResourceListProps) {
+  const reducedMotion = useReducedMotion();
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -65,7 +67,7 @@ export function ResourceList({
       variants={{
         visible: {
           transition: {
-            staggerChildren: 0.1,
+            staggerChildren: reducedMotion ? 0 : 0.1,
           },
         },
       }}
@@ -80,8 +82,8 @@ export function ResourceList({
               opacity: 1,
               y: 0,
               transition: {
-                delay: index * 0.05,
-                duration: 0.3,
+                delay: reducedMotion ? 0 : index * 0.05,
+                duration: reducedMotion ? 0 : 0.3,
               },
             },
           }}

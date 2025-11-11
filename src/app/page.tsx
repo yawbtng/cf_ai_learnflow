@@ -11,6 +11,7 @@ import { ViewToggle, type ViewMode } from '@/components/resources/ViewToggle';
 import { useSearch } from '@/hooks/useSearch';
 import { useFavorites } from '@/hooks/useFavorites';
 import type { Resource } from '@/lib/types';
+import { getStoredViewMode, setStoredValue } from '@/lib/localStorage';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -24,8 +25,8 @@ export default function Home() {
 
   // Load view preference from localStorage
   useEffect(() => {
-    const savedView = localStorage.getItem('viewMode') as ViewMode | null;
-    if (savedView === 'card' || savedView === 'table') {
+    const savedView = getStoredViewMode();
+    if (savedView) {
       setViewMode(savedView);
     }
   }, []);
@@ -33,7 +34,7 @@ export default function Home() {
   // Save view preference to localStorage
   const handleViewChange = (view: ViewMode) => {
     setViewMode(view);
-    localStorage.setItem('viewMode', view);
+    setStoredValue('viewMode', view);
   };
   const {
     resources,
@@ -164,11 +165,11 @@ export default function Home() {
               transition={{ duration: 0.2 }}
             >
               {viewMode === 'card' ? (
-                <ResourceList
+          <ResourceList
                   resources={sortedResources}
-                  favorites={favorites}
-                  onToggleFavorite={toggleFavorite}
-                  loading={loading}
+            favorites={favorites}
+            onToggleFavorite={toggleFavorite}
+            loading={loading}
                   onResourceClick={setSelectedResource}
                 />
               ) : (

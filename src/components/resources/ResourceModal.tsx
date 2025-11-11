@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { X, ExternalLink, Heart, Calendar } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 
 import {
   Dialog,
@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import type { Resource } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { sourceColors, sourceLabels } from '@/lib/constants';
 
 export interface ResourceModalProps {
   resource: Resource | null;
@@ -27,22 +28,30 @@ export interface ResourceModalProps {
   onToggleFavorite: (resource: Resource) => void;
 }
 
-const sourceColors: Record<Resource['source'], string> = {
-  youtube: 'bg-red-500 text-white',
-  spotify: 'bg-green-500 text-white',
-  article: 'bg-blue-500 text-white',
-};
-
-const sourceLabels: Record<Resource['source'], string> = {
-  youtube: 'YouTube',
-  spotify: 'Spotify',
-  article: 'Article',
-};
-
+/**
+ * Safely extracts YouTube video ID from URL
+ * Returns null if URL is invalid or doesn't match YouTube patterns
+ */
 function getYouTubeVideoId(url: string): string | null {
-  const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-  const match = url.match(regex);
-  return match ? match[1] : null;
+  try {
+    // Basic URL validation
+    if (!url || typeof url !== 'string') return null;
+    
+    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const match = url.match(regex);
+    
+    if (!match || !match[1]) return null;
+    
+    // Validate video ID format (should be 11 alphanumeric characters)
+    const videoId = match[1];
+    if (/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
+      return videoId;
+    }
+    
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 export function ResourceModal({
@@ -52,6 +61,10 @@ export function ResourceModal({
   isFavorite,
   onToggleFavorite,
 }: ResourceModalProps) {
+  const reducedMotion = useReducedMotion();
+  const dialogContentRef = useRef<HTMLDivElement>(null);
+  const previousActiveElementRef = useRef<HTMLElement | null>(null);
+
   // Handle Escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -63,6 +76,51 @@ export function ResourceModal({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
+  // Focus trap and management
+  useEffect(() => {
+    if (!isOpen || !dialogContentRef.current) return;
+
+    // Store the previously focused element
+    previousActiveElementRef.current = document.activeElement as HTMLElement;
+
+    const container = dialogContentRef.current;
+    const focusableElements = container.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    // Focus first element when modal opens
+    firstElement?.focus();
+
+    const handleTabKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      if (e.shiftKey) {
+        // Shift + Tab
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement?.focus();
+        }
+      } else {
+        // Tab
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement?.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleTabKey);
+
+    return () => {
+      document.removeEventListener('keydown', handleTabKey);
+      // Return focus to previously focused element
+      previousActiveElementRef.current?.focus();
+    };
+  }, [isOpen]);
+
   if (!resource) return null;
 
   const sourceColor = sourceColors[resource.source];
@@ -73,12 +131,15 @@ export function ResourceModal({
     <AnimatePresence>
       {isOpen && (
         <Dialog open={isOpen} onOpenChange={onClose}>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0">
+          <DialogContent 
+            ref={dialogContentRef}
+            className="max-w-3xl max-h-[90vh] overflow-y-auto p-0"
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: reducedMotion ? 0 : 0.2 }}
               className="p-6"
             >
               <DialogHeader>
@@ -119,7 +180,7 @@ export function ResourceModal({
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
+                    transition={{ delay: reducedMotion ? 0 : 0.1 }}
                     className="relative aspect-video w-full overflow-hidden rounded-lg"
                   >
                     <iframe
@@ -134,7 +195,7 @@ export function ResourceModal({
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
+                    transition={{ delay: reducedMotion ? 0 : 0.1 }}
                     className="relative aspect-video w-full overflow-hidden rounded-lg"
                   >
                     <Image
@@ -153,7 +214,7 @@ export function ResourceModal({
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
+                    transition={{ delay: reducedMotion ? 0 : 0.2 }}
                   >
                     <h3 className="text-lg font-semibold mb-2">Why this was recommended</h3>
                     <p className="text-muted-foreground italic">{resource.reason}</p>
@@ -167,7 +228,7 @@ export function ResourceModal({
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
+                    transition={{ delay: reducedMotion ? 0 : 0.3 }}
                   >
                     <h3 className="text-lg font-semibold mb-2">Summary</h3>
                     <p className="text-muted-foreground leading-relaxed">{resource.summary}</p>
@@ -178,7 +239,7 @@ export function ResourceModal({
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
+                  transition={{ delay: reducedMotion ? 0 : 0.4 }}
                   className="flex flex-col sm:flex-row gap-3 pt-4"
                 >
                   <Button
