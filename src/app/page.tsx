@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { SearchInput } from '@/components/search/SearchInput';
 import { LearningStyleSelector, type LearningStyle } from '@/components/search/LearningStyleSelector';
 import { ResourceList } from '@/components/resources/ResourceList';
+import { ResourceFilters } from '@/components/resources/ResourceFilters';
 import { FavoritesList } from '@/components/favorites/FavoritesList';
 import { useSearch } from '@/hooks/useSearch';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -15,7 +16,18 @@ import { motion } from 'motion/react';
 export default function Home() {
   const [topic, setTopic] = useState('');
   const [learningStyle, setLearningStyle] = useState<LearningStyle | null>(null);
-  const { resources, loading, error, search, clearError } = useSearch();
+  const {
+    resources,
+    sortedResources,
+    loading,
+    error,
+    search,
+    clearError,
+    sortField,
+    sortOrder,
+    setSortField,
+    setSortOrder,
+  } = useSearch();
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
 
   const handleSearch = async () => {
@@ -115,17 +127,29 @@ export default function Home() {
         )}
 
         {/* Results Section */}
-        <section>
-          <h2 className="mb-4 text-2xl font-semibold">
-            {loading ? 'Searching...' : resources.length > 0 ? 'Search Results' : ''}
-          </h2>
-          <ResourceList
-            resources={resources}
-            favorites={favorites}
-            onToggleFavorite={toggleFavorite}
-            loading={loading}
-          />
-        </section>
+        {resources.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-2xl font-semibold">Search Results</h2>
+              <ResourceFilters
+                sortField={sortField}
+                sortOrder={sortOrder}
+                onSortFieldChange={setSortField}
+                onSortOrderChange={setSortOrder}
+              />
+            </div>
+            <ResourceList
+              resources={sortedResources}
+              favorites={favorites}
+              onToggleFavorite={toggleFavorite}
+              loading={loading}
+            />
+          </motion.section>
+        )}
       </div>
     </main>
   );
