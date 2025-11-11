@@ -8,7 +8,6 @@ import { ResourceTableView } from '@/components/resources/ResourceTableView';
 import { ResourceFilters } from '@/components/resources/ResourceFilters';
 import { ResourceModal } from '@/components/resources/ResourceModal';
 import { ViewToggle, type ViewMode } from '@/components/resources/ViewToggle';
-import { FavoritesList } from '@/components/favorites/FavoritesList';
 import { useSearch } from '@/hooks/useSearch';
 import { useFavorites } from '@/hooks/useFavorites';
 import type { Resource } from '@/lib/types';
