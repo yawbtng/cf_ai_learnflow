@@ -13,6 +13,7 @@ export interface ResourceCardProps {
   resource: Resource;
   isFavorite: boolean;
   onToggleFavorite: (resource: Resource) => void;
+  onClick?: (resource: Resource) => void;
 }
 
 const sourceColors: Record<Resource['source'], string> = {
@@ -27,12 +28,20 @@ const sourceLabels: Record<Resource['source'], string> = {
   article: 'Article',
 };
 
-export function ResourceCard({ resource, isFavorite, onToggleFavorite }: ResourceCardProps) {
+export function ResourceCard({
+  resource,
+  isFavorite,
+  onToggleFavorite,
+  onClick,
+}: ResourceCardProps) {
   const sourceColor = sourceColors[resource.source];
   const sourceLabel = sourceLabels[resource.source];
 
   return (
-    <Card className="group flex h-full flex-col overflow-hidden transition-all hover:scale-[1.02] hover:shadow-md">
+    <Card
+      className="group flex h-full flex-col overflow-hidden transition-all hover:scale-[1.02] hover:shadow-md cursor-pointer"
+      onClick={() => onClick?.(resource)}
+    >
       {resource.thumbnail && (
         <div className="relative h-48 w-full overflow-hidden">
           <Image

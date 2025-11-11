@@ -6,10 +6,12 @@ import { LearningStyleSelector, type LearningStyle } from '@/components/search/L
 import { ResourceList } from '@/components/resources/ResourceList';
 import { ResourceTableView } from '@/components/resources/ResourceTableView';
 import { ResourceFilters } from '@/components/resources/ResourceFilters';
+import { ResourceModal } from '@/components/resources/ResourceModal';
 import { ViewToggle, type ViewMode } from '@/components/resources/ViewToggle';
 import { FavoritesList } from '@/components/favorites/FavoritesList';
 import { useSearch } from '@/hooks/useSearch';
 import { useFavorites } from '@/hooks/useFavorites';
+import type { Resource } from '@/lib/types';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,6 +21,7 @@ export default function Home() {
   const [topic, setTopic] = useState('');
   const [learningStyle, setLearningStyle] = useState<LearningStyle | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('card');
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
 
   // Load view preference from localStorage
   useEffect(() => {
@@ -174,17 +177,28 @@ export default function Home() {
                   favorites={favorites}
                   onToggleFavorite={toggleFavorite}
                   loading={loading}
+                  onResourceClick={setSelectedResource}
                 />
               ) : (
                 <ResourceTableView
                   resources={sortedResources}
                   favorites={favorites}
                   onToggleFavorite={toggleFavorite}
+                  onRowClick={setSelectedResource}
                 />
               )}
             </motion.div>
           </motion.section>
         )}
+
+        {/* Resource Modal */}
+        <ResourceModal
+          resource={selectedResource}
+          isOpen={!!selectedResource}
+          onClose={() => setSelectedResource(null)}
+          isFavorite={selectedResource ? favorites.some((fav) => fav.id === selectedResource.id) : false}
+          onToggleFavorite={toggleFavorite}
+        />
       </div>
     </main>
   );

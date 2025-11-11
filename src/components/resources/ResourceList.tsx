@@ -9,6 +9,7 @@ export interface ResourceListProps {
   resources: Resource[];
   favorites: Resource[];
   onToggleFavorite: (resource: Resource) => void;
+  onResourceClick?: (resource: Resource) => void;
   loading?: boolean;
 }
 
@@ -31,6 +32,7 @@ export function ResourceList({
   resources,
   favorites,
   onToggleFavorite,
+  onResourceClick,
   loading = false,
 }: ResourceListProps) {
   if (loading) {
@@ -62,6 +64,7 @@ export function ResourceList({
           resource={resource}
           isFavorite={favorites.some((fav) => fav.id === resource.id)}
           onToggleFavorite={onToggleFavorite}
+          onClick={onResourceClick}
         />
       ))}
     </div>
