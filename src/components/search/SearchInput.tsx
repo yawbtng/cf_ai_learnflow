@@ -20,20 +20,28 @@ export interface SearchInputProps {
 }
 
 function SearchInputInner({
+  value,
   onChange,
   onSubmit,
   placeholder,
   disabled,
-}: Omit<SearchInputProps, 'value'>) {
+}: SearchInputProps) {
   const controller = usePromptInputController();
   const inputValue = controller.textInput.value;
 
-  // Sync external onChange with internal state
+  // Sync external value prop with internal state
   useEffect(() => {
-    if (inputValue !== undefined) {
+    if (value !== undefined && value !== inputValue) {
+      controller.textInput.setInput(value);
+    }
+  }, [value, inputValue, controller]);
+
+  // Sync internal state changes with external onChange
+  useEffect(() => {
+    if (inputValue !== undefined && inputValue !== value) {
       onChange(inputValue);
     }
-  }, [inputValue, onChange]);
+  }, [inputValue, onChange, value]);
 
   const handleSubmit = async () => {
     const trimmedValue = inputValue.trim();
@@ -70,6 +78,7 @@ export function SearchInput({
   return (
     <PromptInputProvider initialInput={value}>
       <SearchInputInner
+        value={value}
         onChange={onChange}
         onSubmit={onSubmit}
         placeholder={placeholder}
