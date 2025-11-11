@@ -8,8 +8,10 @@ import {
   PromptInputProvider,
   usePromptInputController,
 } from '@/components/ai-elements/prompt-input';
+import { InputGroupAddon } from '@/components/ui/input-group';
 import { Search } from 'lucide-react';
 import React, { useEffect, useRef } from 'react';
+import { motion } from 'motion/react';
 
 export interface SearchInputProps {
   value: string;
@@ -100,19 +102,33 @@ function SearchInputInner({
   };
 
   return (
-    <PromptInput onSubmit={handleSubmit}>
-      <PromptInputBody>
-        <PromptInputTextarea
-          placeholder={placeholder}
-          disabled={disabled}
-          className="min-h-12 text-base"
-          aria-label="Search for learning resources"
-        />
-        <PromptInputSubmit disabled={disabled || !inputValue.trim()} aria-label="Submit search">
-          <Search className="size-4" />
-        </PromptInputSubmit>
-      </PromptInputBody>
-    </PromptInput>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+    >
+      <PromptInput onSubmit={handleSubmit}>
+        <PromptInputBody>
+          <PromptInputTextarea
+            placeholder={placeholder}
+            disabled={disabled}
+            className="min-h-12 text-base"
+            aria-label="Search for learning resources"
+          />
+          <InputGroupAddon align="inline-end" className="ml-auto">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+            >
+              <PromptInputSubmit disabled={disabled || !inputValue.trim()} aria-label="Submit search">
+                <Search className="size-4" />
+              </PromptInputSubmit>
+            </motion.div>
+          </InputGroupAddon>
+        </PromptInputBody>
+      </PromptInput>
+    </motion.div>
   );
 }
 

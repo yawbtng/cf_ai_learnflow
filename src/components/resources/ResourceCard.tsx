@@ -6,33 +6,45 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Heart } from 'lucide-react';
+import { motion } from 'motion/react';
 import type { Resource } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { sourceColors, sourceLabels } from '@/lib/constants';
+import { useReducedMotion } from 'motion/react';
 
 export interface ResourceCardProps {
   resource: Resource;
   isFavorite: boolean;
   onToggleFavorite: (resource: Resource) => void;
+  onClick?: (resource: Resource) => void;
 }
 
-const sourceColors: Record<Resource['source'], string> = {
-  youtube: 'bg-red-500 text-white',
-  spotify: 'bg-green-500 text-white',
-  article: 'bg-blue-500 text-white',
-};
-
-const sourceLabels: Record<Resource['source'], string> = {
-  youtube: 'YouTube',
-  spotify: 'Spotify',
-  article: 'Article',
-};
-
-export function ResourceCard({ resource, isFavorite, onToggleFavorite }: ResourceCardProps) {
+export function ResourceCard({
+  resource,
+  isFavorite,
+  onToggleFavorite,
+  onClick,
+}: ResourceCardProps) {
+  const reducedMotion = useReducedMotion();
   const sourceColor = sourceColors[resource.source];
   const sourceLabel = sourceLabels[resource.source];
 
   return (
-    <Card className="group flex h-full flex-col overflow-hidden transition-all hover:scale-[1.02] hover:shadow-md">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={reducedMotion ? {} : { scale: 1.02, y: -4 }}
+      transition={{ 
+        type: reducedMotion ? 'tween' : 'spring', 
+        stiffness: 300, 
+        damping: 25,
+        duration: reducedMotion ? 0 : undefined
+      }}
+    >
+      <Card
+        className="group flex h-full flex-col overflow-hidden cursor-pointer transition-shadow hover:shadow-lg"
+        onClick={() => onClick?.(resource)}
+      >
       {resource.thumbnail && (
         <div className="relative h-48 w-full overflow-hidden">
           <Image
@@ -41,6 +53,7 @@ export function ResourceCard({ resource, isFavorite, onToggleFavorite }: Resourc
             fill
             className="object-cover transition-transform group-hover:scale-105"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            loading="lazy"
           />
         </div>
       )}
@@ -92,6 +105,7 @@ export function ResourceCard({ resource, isFavorite, onToggleFavorite }: Resourc
         </Link>
       </CardContent>
     </Card>
+    </motion.div>
   );
 }
 

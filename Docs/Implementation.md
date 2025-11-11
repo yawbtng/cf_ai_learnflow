@@ -150,18 +150,19 @@
 ### Stage 4: Polish & Essential Features
 **Duration:** 1-2 days
 **Dependencies:** Stage 3 completion
+**Status:** ✅ **COMPLETED**
 
 #### Sub-steps:
-- [ ] Implement complex sorting (allow sorting by source type, title, date, and relevance; support ascending/descending order selection)
-- [ ] Add CSS transitions for hover effects and loading states
-- [ ] Create empty states for no results and no favorites
-- [ ] Add basic SEO meta tags
-- [ ] Optimize images and thumbnails with Next.js Image component
-- [ ] Implement error boundaries for better error handling
-- [ ] Add light/dark mode toggle
-- [ ] Add table view and card view (via tabs)
-- [ ] Open modal pop-up with details when a resource/card is clicked (modal should show LLM summary of resource, rating of relevance, key topics, thumbnail/playable iframe for YT)
-- [ ] Create separate favorites page
+- [X] Implement complex sorting (allow sorting by source type, title, date, and relevance; support ascending/descending order selection)
+- [X] Add CSS transitions for hover effects and loading states
+- [X] Create empty states for no results and no favorites
+- [X] Add basic SEO meta tags
+- [X] Optimize images and thumbnails with Next.js Image component
+- [X] Implement error boundaries for better error handling
+- [X] Add light/dark mode toggle
+- [X] Add table view and card view (via tabs)
+- [X] Open modal pop-up with details when a resource/card is clicked (modal should show LLM summary of resource, rating of relevance, key topics, thumbnail/playable iframe for YT)
+- [X] Create separate favorites page
 
 ### Stage 5: Testing & Deployment
 **Duration:** 1-2 days
@@ -225,10 +226,11 @@
 ## Timeline Summary
 
 - **Total Estimated Duration:** 7-12 days (MVP: 7-9 days, with polish: 9-12 days)
-- **Critical Path:** Stage 1 → Stage 2 → Stage 3 → Stage 5
+- **Critical Path:** Stage 1 → Stage 2 → Stage 3 → Stage 4 → Stage 5
 - **MVP Scope:** Stages 1-5 (core functionality)
 - **Optional Features:** Stage 6 (post-MVP enhancements)
-- **Removed from MVP:** Trending topics, advanced animations, theme toggle, advanced filtering
+- **Completed Stages:** Stage 1 ✅, Stage 2 ✅, Stage 3 ✅, Stage 4 ✅
+- **Removed from MVP:** Trending topics (advanced animations and theme toggle have been implemented in Stage 4)
 
 ## Success Criteria (MVP)
 

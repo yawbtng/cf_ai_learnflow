@@ -3,12 +3,16 @@
 import { ResourceCard } from './ResourceCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
+import { Search } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
 import type { Resource } from '@/lib/types';
 
 export interface ResourceListProps {
   resources: Resource[];
   favorites: Resource[];
   onToggleFavorite: (resource: Resource) => void;
+  onResourceClick?: (resource: Resource) => void;
   loading?: boolean;
 }
 
@@ -31,8 +35,11 @@ export function ResourceList({
   resources,
   favorites,
   onToggleFavorite,
+  onResourceClick,
   loading = false,
 }: ResourceListProps) {
+  const reducedMotion = useReducedMotion();
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -45,26 +52,51 @@ export function ResourceList({
 
   if (resources.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <p className="text-muted-foreground text-lg">No resources found</p>
-        <p className="text-muted-foreground mt-2 text-sm">
-          Try searching for a different topic or adjusting your learning style preference.
-        </p>
-      </div>
+      <EmptyState
+        icon={Search}
+        title="No resources found"
+        description="Try searching for a different topic or adjusting your learning style preference. You can search for any topic you'd like to learn about!"
+      />
     );
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {resources.map((resource) => (
-        <ResourceCard
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={{
+        visible: {
+          transition: {
+            staggerChildren: reducedMotion ? 0 : 0.1,
+          },
+        },
+      }}
+      className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+    >
+      {resources.map((resource, index) => (
+        <motion.div
           key={resource.id}
-          resource={resource}
-          isFavorite={favorites.some((fav) => fav.id === resource.id)}
-          onToggleFavorite={onToggleFavorite}
-        />
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: {
+              opacity: 1,
+              y: 0,
+              transition: {
+                delay: reducedMotion ? 0 : index * 0.05,
+                duration: reducedMotion ? 0 : 0.3,
+              },
+            },
+          }}
+        >
+          <ResourceCard
+            resource={resource}
+            isFavorite={favorites.some((fav) => fav.id === resource.id)}
+            onToggleFavorite={onToggleFavorite}
+            onClick={onResourceClick}
+          />
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }
 

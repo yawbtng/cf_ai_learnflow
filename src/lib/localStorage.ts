@@ -1,95 +1,115 @@
-import type { Resource } from './types';
+/**
+ * Validates and retrieves theme from localStorage
+ */
+export function getStoredTheme(): 'light' | 'dark' | null {
+  if (typeof window === 'undefined') return null;
+  
+  try {
+    const stored = localStorage.getItem('theme');
+    if (stored === 'light' || stored === 'dark') {
+      return stored;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
+/**
+ * Validates and retrieves view mode from localStorage
+ */
+export function getStoredViewMode(): 'card' | 'table' | null {
+  if (typeof window === 'undefined') return null;
+  
+  try {
+    const stored = localStorage.getItem('viewMode');
+    if (stored === 'card' || stored === 'table') {
+      return stored;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Safely sets a value in localStorage
+ */
+export function setStoredValue(key: string, value: string): boolean {
+  if (typeof window === 'undefined') return false;
+  
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Favorites storage key
+ */
 const FAVORITES_KEY = 'learnflow_favorites';
 
 /**
- * Get all favorites from localStorage
- * @returns Array of favorited resources
+ * Retrieves favorites from localStorage with validation
  */
-export function getFavorites(): Resource[] {
-  if (typeof window === 'undefined') {
-    return [];
-  }
-
+export function getFavorites(): import('./types').Resource[] {
+  if (typeof window === 'undefined') return [];
+  
   try {
     const stored = localStorage.getItem(FAVORITES_KEY);
-    if (!stored) {
-      return [];
-    }
-    return JSON.parse(stored) as Resource[];
-  } catch (error) {
-    console.error('Error reading favorites from localStorage:', error);
+    if (!stored) return [];
+    
+    const parsed = JSON.parse(stored);
+    
+    // Validate that it's an array
+    if (!Array.isArray(parsed)) return [];
+    
+    // Validate each item has required fields
+    return parsed.filter((item: unknown) => {
+      if (typeof item !== 'object' || item === null) return false;
+      const resource = item as Record<string, unknown>;
+      return (
+        typeof resource.id === 'string' &&
+        typeof resource.title === 'string' &&
+        typeof resource.source === 'string' &&
+        typeof resource.url === 'string'
+      );
+    }) as import('./types').Resource[];
+  } catch {
     return [];
   }
 }
 
 /**
- * Save a resource to favorites in localStorage
- * @param resource - The resource to save
+ * Saves favorites to localStorage
  */
-export function saveFavorite(resource: Resource): void {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
+function saveFavorites(favorites: import('./types').Resource[]): boolean {
+  if (typeof window === 'undefined') return false;
+  
   try {
-    const favorites = getFavorites();
-    // Check if already favorited
-    if (!favorites.some((fav) => fav.id === resource.id)) {
-      favorites.push(resource);
-      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
-    }
-  } catch (error) {
-    console.error('Error saving favorite to localStorage:', error);
-  }
-}
-
-/**
- * Remove a resource from favorites in localStorage
- * @param resourceId - The ID of the resource to remove
- */
-export function removeFavorite(resourceId: string): void {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
-  try {
-    const favorites = getFavorites();
-    const filtered = favorites.filter((fav) => fav.id !== resourceId);
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(filtered));
-  } catch (error) {
-    console.error('Error removing favorite from localStorage:', error);
-  }
-}
-
-/**
- * Check if a resource is favorited
- * @param resourceId - The ID of the resource to check
- * @returns True if the resource is favorited
- */
-export function isFavorite(resourceId: string): boolean {
-  if (typeof window === 'undefined') {
-    return false;
-  }
-
-  try {
-    const favorites = getFavorites();
-    return favorites.some((fav) => fav.id === resourceId);
-  } catch (error) {
-    console.error('Error checking favorite in localStorage:', error);
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    return true;
+  } catch {
     return false;
   }
 }
 
 /**
- * Toggle favorite status of a resource
- * @param resource - The resource to toggle
+ * Toggles a favorite resource in localStorage
  */
-export function toggleFavorite(resource: Resource): void {
-  if (isFavorite(resource.id)) {
-    removeFavorite(resource.id);
+export function toggleFavorite(resource: import('./types').Resource): void {
+  const favorites = getFavorites();
+  const existingIndex = favorites.findIndex((fav) => fav.id === resource.id);
+  
+  if (existingIndex >= 0) {
+    // Remove from favorites
+    favorites.splice(existingIndex, 1);
   } else {
-    saveFavorite(resource);
+    // Add to favorites
+    favorites.push(resource);
   }
+  
+  saveFavorites(favorites);
 }
-
