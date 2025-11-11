@@ -413,7 +413,10 @@ export const PromptInputActionAddAttachments = ({
   );
 };
 
-export type PromptInputMessage = UseChatHelpers<never>["sendMessage"];
+export type PromptInputMessage = {
+  text: string;
+  files?: FileUIPart[];
+};
 
 export type PromptInputProps = Omit<
   HTMLAttributes<HTMLFormElement>,
