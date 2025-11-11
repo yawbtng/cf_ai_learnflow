@@ -138,13 +138,6 @@ export default function Home() {
           )}
         </motion.section>
 
-        {/* Favorites Section */}
-        {favorites.length > 0 && (
-          <section className="mb-8">
-            <FavoritesList favorites={favorites} onToggleFavorite={toggleFavorite} />
-          </section>
-        )}
-
         {/* Results Section */}
         {resources.length > 0 && (
           <motion.section
