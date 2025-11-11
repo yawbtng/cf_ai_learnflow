@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SearchInput } from '@/components/search/SearchInput';
 import { LearningStyleSelector, type LearningStyle } from '@/components/search/LearningStyleSelector';
 import { ResourceList } from '@/components/resources/ResourceList';
+import { ResourceTableView } from '@/components/resources/ResourceTableView';
 import { ResourceFilters } from '@/components/resources/ResourceFilters';
+import { ViewToggle, type ViewMode } from '@/components/resources/ViewToggle';
 import { FavoritesList } from '@/components/favorites/FavoritesList';
 import { useSearch } from '@/hooks/useSearch';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -16,6 +18,21 @@ import { motion } from 'motion/react';
 export default function Home() {
   const [topic, setTopic] = useState('');
   const [learningStyle, setLearningStyle] = useState<LearningStyle | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('card');
+
+  // Load view preference from localStorage
+  useEffect(() => {
+    const savedView = localStorage.getItem('viewMode') as ViewMode | null;
+    if (savedView === 'card' || savedView === 'table') {
+      setViewMode(savedView);
+    }
+  }, []);
+
+  // Save view preference to localStorage
+  const handleViewChange = (view: ViewMode) => {
+    setViewMode(view);
+    localStorage.setItem('viewMode', view);
+  };
   const {
     resources,
     sortedResources,
@@ -135,19 +152,37 @@ export default function Home() {
           >
             <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-2xl font-semibold">Search Results</h2>
-              <ResourceFilters
-                sortField={sortField}
-                sortOrder={sortOrder}
-                onSortFieldChange={setSortField}
-                onSortOrderChange={setSortOrder}
-              />
+              <div className="flex items-center gap-4">
+                <ViewToggle view={viewMode} onViewChange={handleViewChange} />
+                <ResourceFilters
+                  sortField={sortField}
+                  sortOrder={sortOrder}
+                  onSortFieldChange={setSortField}
+                  onSortOrderChange={setSortOrder}
+                />
+              </div>
             </div>
-            <ResourceList
-              resources={sortedResources}
-              favorites={favorites}
-              onToggleFavorite={toggleFavorite}
-              loading={loading}
-            />
+            <motion.div
+              key={viewMode}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.2 }}
+            >
+              {viewMode === 'card' ? (
+                <ResourceList
+                  resources={sortedResources}
+                  favorites={favorites}
+                  onToggleFavorite={toggleFavorite}
+                  loading={loading}
+                />
+              ) : (
+                <ResourceTableView
+                  resources={sortedResources}
+                  favorites={favorites}
+                  onToggleFavorite={toggleFavorite}
+                />
+              )}
+            </motion.div>
           </motion.section>
         )}
       </div>
