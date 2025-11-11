@@ -40,13 +40,13 @@ export default function Home() {
   return (
     <main className="container mx-auto min-h-screen px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
-        {/* Header */}
-        <header className="mb-8 text-center">
+        {/* Hero Section */}
+        <div className="mb-8 text-center">
           <h1 className="mb-2 text-4xl font-bold">LearnFlow</h1>
           <p className="text-muted-foreground text-lg">
             Discover personalized learning resources powered by AI
           </p>
-        </header>
+        </div>
 
         {/* Search Section */}
         <section className="mb-8 space-y-6">
