@@ -1,10 +1,14 @@
 'use client';
 
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import {
+  PromptInput,
+  PromptInputBody,
+  PromptInputTextarea,
+  PromptInputSubmit,
+  PromptInputProvider,
+} from '@/components/ai-elements/prompt-input';
 import { Search } from 'lucide-react';
-import { KeyboardEvent } from 'react';
-import { cn } from '@/lib/utils';
+import { useEffect } from 'react';
 
 export interface SearchInputProps {
   value: string;
@@ -21,39 +25,31 @@ export function SearchInput({
   placeholder = 'What would you like to learn about?',
   disabled = false,
 }: SearchInputProps) {
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey && !disabled && value.trim()) {
-      e.preventDefault();
-      onSubmit();
+  const handleSubmit = async () => {
+    if (!value.trim() || disabled) {
+      return;
     }
+    onSubmit();
   };
 
   return (
-    <div className="relative flex items-center gap-2">
-      <Input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        disabled={disabled}
-        className={cn(
-          'h-12 text-base pr-12',
-          'focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2'
-        )}
-        aria-label="Search for learning resources"
-      />
-      <Button
-        type="button"
-        onClick={onSubmit}
-        disabled={disabled || !value.trim()}
-        className="absolute right-2 h-8 w-8 shrink-0"
-        size="icon-sm"
-        aria-label="Submit search"
-      >
-        <Search className="size-4" />
-      </Button>
-    </div>
+    <PromptInputProvider initialInput={value}>
+      <PromptInput onSubmit={handleSubmit}>
+        <PromptInputBody>
+          <PromptInputTextarea
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
+            disabled={disabled}
+            className="min-h-12 text-base"
+            aria-label="Search for learning resources"
+          />
+          <PromptInputSubmit disabled={disabled || !value.trim()} aria-label="Submit search">
+            <Search className="size-4" />
+          </PromptInputSubmit>
+        </PromptInputBody>
+      </PromptInput>
+    </PromptInputProvider>
   );
 }
 
