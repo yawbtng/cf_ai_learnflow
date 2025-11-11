@@ -8,7 +8,6 @@ import {
   PromptInputProvider,
 } from '@/components/ai-elements/prompt-input';
 import { Search } from 'lucide-react';
-import { useEffect } from 'react';
 
 export interface SearchInputProps {
   value: string;
