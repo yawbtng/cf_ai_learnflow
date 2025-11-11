@@ -15,8 +15,38 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LearnFlow - AI-Powered Learning Resource Discovery",
+  title: {
+    default: "LearnFlow - AI-Powered Learning Resource Discovery",
+    template: "%s | LearnFlow",
+  },
   description: "Discover personalized learning resources from YouTube, Spotify, and articles powered by AI",
+  keywords: ["learning", "education", "AI", "YouTube", "Spotify", "articles", "resources", "curated"],
+  authors: [{ name: "LearnFlow Team" }],
+  creator: "LearnFlow",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://learnflow.app",
+    siteName: "LearnFlow",
+    title: "LearnFlow - AI-Powered Learning Resource Discovery",
+    description: "Discover personalized learning resources from YouTube, Spotify, and articles powered by AI",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LearnFlow - AI-Powered Learning Resource Discovery",
+    description: "Discover personalized learning resources from YouTube, Spotify, and articles powered by AI",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({
