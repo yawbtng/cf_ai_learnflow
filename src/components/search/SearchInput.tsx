@@ -8,6 +8,7 @@ import {
   PromptInputProvider,
   usePromptInputController,
 } from '@/components/ai-elements/prompt-input';
+import { InputGroupAddon } from '@/components/ui/input-group';
 import { Search } from 'lucide-react';
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
@@ -108,26 +109,23 @@ function SearchInputInner({
     >
       <PromptInput onSubmit={handleSubmit}>
         <PromptInputBody>
-          <motion.div
-            whileFocus={{ scale: 1.01 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          >
-            <PromptInputTextarea
-              placeholder={placeholder}
-              disabled={disabled}
-              className="min-h-12 text-base"
-              aria-label="Search for learning resources"
-            />
-          </motion.div>
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-          >
-            <PromptInputSubmit disabled={disabled || !inputValue.trim()} aria-label="Submit search">
-              <Search className="size-4" />
-            </PromptInputSubmit>
-          </motion.div>
+          <PromptInputTextarea
+            placeholder={placeholder}
+            disabled={disabled}
+            className="min-h-12 text-base"
+            aria-label="Search for learning resources"
+          />
+          <InputGroupAddon align="inline-end" className="ml-auto">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+            >
+              <PromptInputSubmit disabled={disabled || !inputValue.trim()} aria-label="Submit search">
+                <Search className="size-4" />
+              </PromptInputSubmit>
+            </motion.div>
+          </InputGroupAddon>
         </PromptInputBody>
       </PromptInput>
     </motion.div>
